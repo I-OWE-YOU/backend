@@ -6,8 +6,20 @@
 
         public string ContactFirstName { get; set; }
 
-        public string  ContactLastName { get; set; }
+        public string ContactLastName { get; set; }
 
         public Address Address { get; set; }
+
+        public decimal Longitude { get; set; }
+
+        public decimal Latitude { get; set; }
+
+        public string Email { get; set; }
+
+        public string IBAN { get; set; }
+
+        public bool AcceptedTerms { get; set; }
+
+        public string CopyAcceptedTerms { get; set; }
     }
 }
