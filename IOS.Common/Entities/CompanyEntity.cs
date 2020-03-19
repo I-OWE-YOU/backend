@@ -4,6 +4,8 @@ namespace IOU.Common.Entities
 {
     public class CompanyEntity : TableEntity
     {
+        public const string TABLE_NAME = "Companies";
+
         public CompanyEntity()
         {
             PartitionKey = Constants.PARTITIONKEY_COMPANY;
@@ -17,17 +19,15 @@ namespace IOU.Common.Entities
 
         public string Street { get; set; }
 
-        public int HouseNumber { get; set; }
-
-        public string HouseNumberAddition { get; set; }
+        public string HouseNumber { get; set; }
 
         public string Zipcode { get; set; }
 
         public string City { get; set; }
 
-        public decimal Longitude { get; set; }
+        public float Longitude { get; set; }
 
-        public decimal Latitude { get; set; }
+        public float Latitude { get; set; }
 
         public string Email { get; set; }
 

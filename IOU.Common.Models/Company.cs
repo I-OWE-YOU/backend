@@ -16,6 +16,6 @@
 
         public bool AcceptedTerms { get; set; }
 
-        public string CopyAcceptedTerms { get; set; }
+        public string CopyAcceptedTerms { get; set; }    
     }
 }
