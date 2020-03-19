@@ -28,7 +28,8 @@ namespace IOU.Backend.Functions.Functions
             {
                 AcceptedTerms = company.AcceptedTerms,
                 City = company.Address.City,
-                RowKey = company.CompanyName,
+                RowKey = company.CocNumber,
+                CompanyName = company.CompanyName,
                 CopyAcceptedTerms = company.CopyAcceptedTerms,
                 Email = company.Email,
                 Firstname = company.ContactFirstName,

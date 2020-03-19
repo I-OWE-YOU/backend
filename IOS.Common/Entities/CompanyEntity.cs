@@ -11,7 +11,10 @@ namespace IOU.Common.Entities
             PartitionKey = Constants.PARTITIONKEY_COMPANY;
         }
 
-        public string CompanyName => RowKey;
+        [IgnoreProperty]
+        public string CocNumber => RowKey;
+
+        public string CompanyName { get; set; }
 
         public string Firstname { get; set; }
 
