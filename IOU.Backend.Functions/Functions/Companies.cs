@@ -19,7 +19,7 @@ namespace IOU.Backend.Functions.Functions
     {
         [FunctionName("CreateCompany")]
         public static async Task<IActionResult> RunCreate(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] Company company,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "companies")] Company company,
             [Table(CompanyEntity.TABLE_NAME, Connection = "storageConnectionString")] CloudTable table,
             ILogger log)
         {
