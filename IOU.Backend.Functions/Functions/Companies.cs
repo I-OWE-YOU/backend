@@ -84,11 +84,15 @@ namespace IOU.Backend.Functions.Functions
             return new OkObjectResult(company);
         }
 
+        #region Private methods
+
         private static string GenerateSlug(Company company)
         {
             // TODO: implement slug generator that ALWAYS returns a unique slug
             // Think about adding an abbreviation of the city if the slug was taken already
             return company.CompanyName.Replace(" ", ".");
         }
+
+        #endregion
     }
 }
