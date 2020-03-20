@@ -37,6 +37,7 @@ namespace IOU.Backend.Functions.Functions
                 Email = company.Email,
                 Firstname = company.ContactFirstName,
                 HouseNumber = company.Address.HouseNumber,
+                TikkieUrl = company.TikkieUrl,
                 IBAN = company.IBAN,
                 Lastname = company.ContactLastName,
                 Latitude = company.Address.Latitude,
@@ -79,6 +80,7 @@ namespace IOU.Backend.Functions.Functions
                 ContactLastName = companyEntity.Lastname,
                 CopyAcceptedTerms = companyEntity.CopyAcceptedTerms,
                 Email = companyEntity.Email,
+                TikkieUrl = companyEntity.TikkieUrl,
                 IBAN = companyEntity.IBAN,
                 Slug = companyEntity.RowKey
             };

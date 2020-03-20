@@ -10,6 +10,8 @@
 
         public Address Address { get; set; }
 
+        public string TikkieUrl  { get; set; }
+        
         public string Email { get; set; }
 
         public string IBAN { get; set; }
