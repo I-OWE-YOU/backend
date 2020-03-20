@@ -8,13 +8,15 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 using IOU.Common.Entities;
 using IOU.Common.Models;
+using Microsoft.AspNetCore.Http;
+using IOU.Common;
 
 namespace IOU.Backend.Functions.Functions
 {
     public static class Companies
     {
-        [FunctionName("Companies")]
-        public static async Task<IActionResult> Run(
+        [FunctionName("CreateCompany")]
+        public static async Task<IActionResult> RunCreate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] Company company,
             [Table(CompanyEntity.TABLE_NAME, Connection = "storageConnectionString")] CloudTable table,
             ILogger log)
@@ -24,7 +26,7 @@ namespace IOU.Backend.Functions.Functions
                 return new BadRequestResult();
             }
 
-            var entity = new CompanyEntity 
+            var entity = new CompanyEntity
             {
                 AcceptedTerms = company.AcceptedTerms,
                 City = company.Address.City,
@@ -42,8 +44,44 @@ namespace IOU.Backend.Functions.Functions
                 Zipcode = company.Address.Zipcode
             };
             await table.ExecuteAsync(TableOperation.Insert(entity));
+            company.Slug = entity.Slug;
 
-            return new OkResult();
+            return new OkObjectResult(company);
+        }
+
+        [FunctionName("GetCompany")]
+        public static IActionResult RunGet(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "companies/{slug}")] HttpRequest req,
+            [Table(CompanyEntity.TABLE_NAME, Constants.PARTITIONKEY_COMPANY, "{slug}", Connection = "storageConnectionString")] CompanyEntity companyEntity,
+            ILogger log)
+        {
+            if (companyEntity == null)
+            {
+                return new NotFoundResult();
+            }
+
+            var company = new Company
+            {
+                AcceptedTerms = companyEntity.AcceptedTerms,
+                Address = new Address
+                { 
+                    City = companyEntity.City,
+                    HouseNumber = companyEntity.HouseNumber,
+                    Latitude = companyEntity.Latitude,
+                    Longitude = companyEntity.Longitude,
+                    Street = companyEntity.Street,
+                    Zipcode = companyEntity.Zipcode
+                },
+                Slug = companyEntity.RowKey,
+                CompanyName = companyEntity.CompanyName,
+                CopyAcceptedTerms = companyEntity.CopyAcceptedTerms,
+                Email = companyEntity.Email,
+                ContactFirstName = companyEntity.Firstname,
+                IBAN = companyEntity.IBAN,
+                ContactLastName = companyEntity.Lastname,
+            };
+
+            return new OkObjectResult(company);
         }
 
         private static string GenerateSlug(Company company)

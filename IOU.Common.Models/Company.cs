@@ -19,5 +19,7 @@
         public string CopyAcceptedTerms { get; set; }
 
         public string CocNumber { get; set; }
+
+        public string Slug { get; set; }
     }
 }
