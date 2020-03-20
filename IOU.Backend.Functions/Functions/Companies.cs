@@ -28,7 +28,7 @@ namespace IOU.Backend.Functions.Functions
             {
                 AcceptedTerms = company.AcceptedTerms,
                 City = company.Address.City,
-                RowKey = company.CocNumber,
+                RowKey = GenerateSlug(company),
                 CompanyName = company.CompanyName,
                 CopyAcceptedTerms = company.CopyAcceptedTerms,
                 Email = company.Email,
@@ -44,6 +44,13 @@ namespace IOU.Backend.Functions.Functions
             await table.ExecuteAsync(TableOperation.Insert(entity));
 
             return new OkResult();
+        }
+
+        private static string GenerateSlug(Company company)
+        {
+            // TODO: implement slug generator that ALWAYS returns a unique slug
+            // Think about adding an abbreviation of the city if the slug was taken already
+            return company.CompanyName.Replace(" ", ".");
         }
     }
 }

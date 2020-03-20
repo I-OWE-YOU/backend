@@ -12,7 +12,9 @@ namespace IOU.Common.Entities
         }
 
         [IgnoreProperty]
-        public string CocNumber => RowKey;
+        public string Slug => RowKey;
+
+        public string CocNumber { get; set; }
 
         public string CompanyName { get; set; }
 
