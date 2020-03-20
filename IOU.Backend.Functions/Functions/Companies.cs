@@ -1,15 +1,17 @@
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Table;
 
+using IOU.Common;
 using IOU.Common.Entities;
 using IOU.Common.Models;
-using Microsoft.AspNetCore.Http;
-using IOU.Common;
 
 namespace IOU.Backend.Functions.Functions
 {
@@ -30,7 +32,6 @@ namespace IOU.Backend.Functions.Functions
             {
                 AcceptedTerms = company.AcceptedTerms,
                 City = company.Address.City,
-                RowKey = GenerateSlug(company),
                 CompanyName = company.CompanyName,
                 CopyAcceptedTerms = company.CopyAcceptedTerms,
                 Email = company.Email,
@@ -40,6 +41,7 @@ namespace IOU.Backend.Functions.Functions
                 Lastname = company.ContactLastName,
                 Latitude = company.Address.Latitude,
                 Longitude = company.Address.Longitude,
+                RowKey = await GenerateSlugAsync(company, table),
                 Street = company.Address.Street,
                 Zipcode = company.Address.Zipcode
             };
@@ -64,7 +66,7 @@ namespace IOU.Backend.Functions.Functions
             {
                 AcceptedTerms = companyEntity.AcceptedTerms,
                 Address = new Address
-                { 
+                {
                     City = companyEntity.City,
                     HouseNumber = companyEntity.HouseNumber,
                     Latitude = companyEntity.Latitude,
@@ -72,13 +74,13 @@ namespace IOU.Backend.Functions.Functions
                     Street = companyEntity.Street,
                     Zipcode = companyEntity.Zipcode
                 },
-                Slug = companyEntity.RowKey,
                 CompanyName = companyEntity.CompanyName,
+                ContactFirstName = companyEntity.Firstname,
+                ContactLastName = companyEntity.Lastname,
                 CopyAcceptedTerms = companyEntity.CopyAcceptedTerms,
                 Email = companyEntity.Email,
-                ContactFirstName = companyEntity.Firstname,
                 IBAN = companyEntity.IBAN,
-                ContactLastName = companyEntity.Lastname,
+                Slug = companyEntity.RowKey
             };
 
             return new OkObjectResult(company);
@@ -86,11 +88,54 @@ namespace IOU.Backend.Functions.Functions
 
         #region Private methods
 
-        private static string GenerateSlug(Company company)
+        /// <summary>
+        /// Method to generate a slug for a company. This slug needs to be unique.
+        /// </summary>
+        /// <param name="company">Instance of a <see cref="Company"/> to generate the slug for.</param>
+        /// <param name="table">Reference to a <see cref="CloudTable"/> with existing companies to check uniqueness of the slug.</param>
+        /// <returns>A unique slug for the specified <paramref name="company"/>.</returns>
+        /// <remarks>The slug cannot contain '/', '\', '#', '?' or any character that is not supported in an URL.</remarks>
+        private static async Task<string> GenerateSlugAsync(Company company, CloudTable table)
         {
-            // TODO: implement slug generator that ALWAYS returns a unique slug
-            // Think about adding an abbreviation of the city if the slug was taken already
-            return company.CompanyName.Replace(" ", ".");
+            bool found;
+
+            // First remove RowKey disallowed characters and lowercase the rest of the CompanyName.
+            var slug = company.CompanyName
+                .Replace("/", "")
+                .Replace("\\", "")
+                .Replace("#", "")
+                .Replace("?", "").ToLower();
+
+            // Second remove any characters with accents
+            slug = Encoding.ASCII.GetString(Encoding.GetEncoding("Cyrillic").GetBytes(slug));
+
+            // Third we remove any characters not allowed in a URL
+            slug = Regex.Replace(slug, @"[^a-z0-9\s-]", "");
+
+            // Then replace space with a dash for readability
+            slug = slug.Replace(" ", "-");
+
+            found = (await table.ExecuteAsync(TableOperation.Retrieve(Constants.PARTITIONKEY_COMPANY, slug))).Result != null;
+            if (found)
+            {
+                if (company.Address != null && !string.IsNullOrWhiteSpace(company.Address.City) && company.Address.City.Length >= 3)
+                {
+                    slug += "-" + company.Address.City.ToLower().Substring(0, 3);
+                    found = (await table.ExecuteAsync(TableOperation.Retrieve(Constants.PARTITIONKEY_COMPANY, slug))).Result != null;
+                }
+                if (found)
+                {
+                    int counter = 0;
+                    do
+                    {
+                        counter++;
+                        found = (await table.ExecuteAsync(TableOperation.Retrieve(Constants.PARTITIONKEY_COMPANY, $"{slug}-{counter:000}"))).Result != null;
+                    } while (found);
+                    slug = $"{slug}-{counter:000}";
+                }
+            }
+
+            return slug;
         }
 
         #endregion
