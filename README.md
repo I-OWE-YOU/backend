@@ -1,4 +1,4 @@
-# TEGOEDJE.nu : backend
+# TEGOEDJE.nu: backend
 
 This repo contains the code for the backend for TEGOEDJE.nu. 
 
