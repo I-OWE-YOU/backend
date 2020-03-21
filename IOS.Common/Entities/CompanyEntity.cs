@@ -35,7 +35,9 @@ namespace IOU.Common.Entities
         public float Latitude { get; set; }
 
         public string Email { get; set; }
-
+        
+        public string TikkieUrl { get; set; }
+        
         public string IBAN { get; set; }
 
         public bool AcceptedTerms { get; set; }
