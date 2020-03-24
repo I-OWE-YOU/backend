@@ -67,7 +67,7 @@ namespace IOU.Backend.Functions.Functions
                     Latitude = streetAddress.Position.Lat,
                     Longitude = streetAddress.Position.Lon,
                     Street = streetAddress.Address.StreetName,
-                    Zipcode = streetAddress.Address.ExtendedPostalCode
+                    Zipcode = postalCode
                 };
                 return new OkObjectResult(address);
             }
